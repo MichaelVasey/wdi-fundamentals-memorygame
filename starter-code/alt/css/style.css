@@ -57,6 +57,7 @@ aside header p {
 
 aside header h1 {
 	margin: 0.5em 0;
+	color: #f35;
 	font-family: 'Shadows Into Light', cursive;
 	font-size: 1.8em;
 }

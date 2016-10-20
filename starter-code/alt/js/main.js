@@ -90,15 +90,19 @@
 		options = {
 			boardSize: 20,
 			time: 60,
+			mPoints: 10, // points for a match
+			cPoints: 100, // points for clearing board
 			theme: 'kitty'
 		},
 
 		cards = [],
 		paired =[],
 		currScore,
+		remCards,
 		isPlaying = false,
 		boardSet = false;
 
+	// extend function www.tympanus.net/codrops
 	function extend( a, b ) {
 		for( var key in b ) { 
 			if( b.hasOwnProperty( key ) ) {
@@ -117,6 +121,14 @@
 		var id = 1;
 
 		_setupCards();
+
+		boardSet = true;
+
+		matches.textContent = boardSize / 2;
+
+		if (newGame) {
+			score.textContent = 0;
+		}
 
 		function _setupCards() {
 			var rand;
@@ -138,12 +150,6 @@
 				document.getElementById('board').appendChild(card);
 			});
 
-			matches.textContent = boardSize / 2;
-
-			if (newGame) {
-				score.textContent = 0;
-			}
-			boardSet = true;
 		};
 		
 
@@ -154,11 +160,7 @@
 				cardEl.innerHTML = '<div id="cd' + id + '" class="card"><div class="card-front"><img src="img/' + img.src + '" alt="' + img.alt + '"></div><div class="card-back"></div></div>';
 				card = cardEl.querySelector('.card');
 				card.setAttribute('data-type', img.title);
-				// card.addEventListener('click', function(){
-				// 	this.classList.toggle('flip');
-				// 	check card function
-				// 	checkcards.call(this);
-				// });
+
 				card.addEventListener('click', checkCards);
 				cards.push(cardEl);
 				id++;
@@ -186,7 +188,6 @@
 	};
 
 
-
 	function startGame() {
 		if (isPlaying) {
 			return;
@@ -202,6 +203,7 @@
 		// 2: start countdown!!
 		countdown.classList.add('start');
 		// 3: hide overlay on animation end
+		// onAnimationEnd www.tympanus.net/codrops
 		onAnimationEnd(scroller, function() {
 			overlay.classList.remove('show');
 
@@ -209,24 +211,25 @@
 			boardSet = false;
 			// counter.textContent = options.time;
 			startTimer(function(){
-				isPlaying = false;
-				var resEl = document.createElement('div');
-				var html = '<div>Congratulations, you cleared the board!</div><div>Your current score is <span>' + score.textContent + '</span></div><div>Play again? <span class="yes">YES</span><span class="no">NO</span></div>';
-				resEl.classList.add('credits');
+				endGame(false);
+				// isPlaying = false;
+				// var resEl = document.createElement('div');
+				// var html = '<div>Congratulations, you cleared the board!</div><div>Your current score is <span>' + score.textContent + '</span></div><div>Play again? <span class="yes">YES</span><span class="no">NO</span></div>';
+				// resEl.classList.add('credits');
 
-				resEl.innerHTML = html;
+				// resEl.innerHTML = html;
 
-				overlay.querySelector('#close-icon').addEventListener('click', function(){
-					overlay.classList.remove('show');
-					overlay.removeChild(resEl);
-					countdown.classList.remove('hide');
-					this.classList.add('hide');
-				});
+				// overlay.querySelector('#close-icon').addEventListener('click', function(){
+				// 	overlay.classList.remove('show');
+				// 	overlay.removeChild(resEl);
+				// 	countdown.classList.remove('hide');
+				// 	this.classList.add('hide');
+				// });
 
-				countdown.classList.add('hide');
-				overlay.appendChild(resEl);
-				close.classList.remove('hide');
-				overlay.classList.add('show');
+				// countdown.classList.add('hide');
+				// overlay.appendChild(resEl);
+				// close.classList.remove('hide');
+				// overlay.classList.add('show');
 			});
 		});
 
@@ -239,7 +242,8 @@
 					counter.classList.add('ending');
 				}
 				if (t <= 0) {
-					clearInterval(timer);
+					// clearInterval(timer); <-- CHANGE
+					stopTimer();
 					callback();
 				}
 			}, 1000);
@@ -247,6 +251,7 @@
 	};
 
 	startBtn.addEventListener('click', startGame);
+	resetBtn.addEventListener('click', resetGame);
 
 	//stopTimer
 	function stopTimer() {
@@ -254,12 +259,11 @@
 	};
 
 	// card on click
-	// 1: remove click event listener
 	function checkCards() {
 		var cards = [].slice.call(document.getElementsByClassName('card'));
 		this.classList.add('flip');
-		this.removeEventListener('click', checkCards);
-		paired.push(this);
+		this.removeEventListener('click', checkCards); // remove click event listener
+		paired.push(this); // add card to pair
 		if (paired.length != 2) {
 			return;
 		} else {
@@ -273,11 +277,20 @@
 				_resetPaired();
 				update();
 				bubbles('success');
-				cards.forEach(function(card){
-					if (!card.classList.contains('matched')) {
-						card.addEventListener('click', checkCards);
-					}
-				});
+				if (matches.textContent == 0) { // <-- CHANGE
+					endGame(true);
+				} else {
+					cards.forEach(function(card){
+						if (!card.classList.contains('matched')) {
+							card.addEventListener('click', checkCards);
+						}
+					});
+				}
+				// cards.forEach(function(card){
+				// 	if (!card.classList.contains('matched')) {
+				// 		card.addEventListener('click', checkCards);
+				// 	}
+				// });
 			} else {
 				// TODO indicate no match
 				setTimeout (function() {
@@ -322,12 +335,36 @@
 	};
 
 	function endGame(cleared) {
+		isPlaying = false;
+		var resEl = document.createElement('div'),
+			html;
+
 		if (cleared) {
 		// format message for win
+			html = '<div>Congratulations, you cleared the board!</div>';
+			stopTimer();
 		} else {
 		// format message for lose
-		}
+			html = '<div>Bad luck, but you were so close!</div>';
+		}	
+
+		html += '<div>Your current score is <span>' + score.textContent + '</span></div><div>Play again? <span class="yes">YES</span><span class="no">NO</span></div>';
+		resEl.classList.add('credits');
+		resEl.innerHTML = html;
+
+		overlay.querySelector('#close-icon').addEventListener('click', function(){
+			overlay.classList.remove('show');
+			overlay.removeChild(resEl);
+			countdown.classList.remove('hide');
+			this.classList.add('hide');
+		});
+
+		countdown.classList.add('hide');
+		overlay.appendChild(resEl);
+		close.classList.remove('hide');
+		overlay.classList.add('show');
 	};
+	// };
 
 	function resetGame() {
 		if (isPlaying) {
