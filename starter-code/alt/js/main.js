@@ -252,6 +252,14 @@
 
 	startBtn.addEventListener('click', startGame);
 	resetBtn.addEventListener('click', resetGame);
+	document.getElementById('menu-icon').addEventListener('click', function(){
+		this.querySelector('.menu-toggle').classList.toggle('open');
+		document.getElementById('side-bar').classList.toggle('show');
+	});
+	document.getElementById('ctrl-icon').addEventListener('click', function(){
+		this.querySelector('.ctrl-toggle').classList.toggle('open');
+		document.getElementById('scoreboard').classList.toggle('show');
+	});
 
 	//stopTimer
 	function stopTimer() {
