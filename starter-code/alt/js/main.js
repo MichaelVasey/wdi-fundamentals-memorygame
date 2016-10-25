@@ -49,9 +49,20 @@
 		alt: 'Hello Kitty Milk',
 		title: 'Kitty Milk',
 		dataSize: ''
+	}, {
+		src: 'scooter.png',
+		alt: 'Vespa Kitty',
+		title: 'Vespa Kitty',
+		dataSize: ''
+	}, {
+		src: 'skate.png',
+		alt: 'Ice-skater Kitty',
+		title: 'Ice-skater Kitty',
+		dataSize: ''
 	}];
 
 	// cache some elements
+
 	var overlay = document.getElementById('overlay'),
 		countdown = overlay.querySelector('.countdown'),
 		scroller = document.getElementById('countdown-scroller'),
@@ -71,6 +82,7 @@
 		},
 		animEndEventName = animEndEventNames[ Modernizr.prefixed('animation') ],
 
+		// onAnimationEnd www.tympanus.net/codrops
 		onAnimationEnd = function(el, callback) {
 			var onEndCallbackFn = function(ev) {
 				if (support.animations) {
@@ -124,10 +136,12 @@
 
 		boardSet = true;
 
-		matches.textContent = boardSize / 2;
+		matches.textContent = remCards = boardSize / 2;
+
+		counter.textContent = options.time;
 
 		if (newGame) {
-			score.textContent = 0;
+			score.textContent = currScore = 0;
 		}
 
 		function _setupCards() {
@@ -203,46 +217,25 @@
 		// 2: start countdown!!
 		countdown.classList.add('start');
 		// 3: hide overlay on animation end
-		// onAnimationEnd www.tympanus.net/codrops
 		onAnimationEnd(scroller, function() {
 			overlay.classList.remove('show');
 
 			isPlaying = true;
 			boardSet = false;
-			// counter.textContent = options.time;
 			startTimer(function(){
 				endGame(false);
-				// isPlaying = false;
-				// var resEl = document.createElement('div');
-				// var html = '<div>Congratulations, you cleared the board!</div><div>Your current score is <span>' + score.textContent + '</span></div><div>Play again? <span class="yes">YES</span><span class="no">NO</span></div>';
-				// resEl.classList.add('credits');
-
-				// resEl.innerHTML = html;
-
-				// overlay.querySelector('#close-icon').addEventListener('click', function(){
-				// 	overlay.classList.remove('show');
-				// 	overlay.removeChild(resEl);
-				// 	countdown.classList.remove('hide');
-				// 	this.classList.add('hide');
-				// });
-
-				// countdown.classList.add('hide');
-				// overlay.appendChild(resEl);
-				// close.classList.remove('hide');
-				// overlay.classList.add('show');
 			});
 		});
 
 		function startTimer(callback) {
 			var t = options.time;
-			timer = setInterval(function(){
+			timer = setInterval(function() {
 				t -= 1;
 				counter.textContent = t;
 				if (t <= 10) {
 					counter.classList.add('ending');
 				}
 				if (t <= 0) {
-					// clearInterval(timer); <-- CHANGE
 					stopTimer();
 					callback();
 				}
@@ -284,7 +277,8 @@
 				});
 				_resetPaired();
 				update();
-				bubbles('success');
+				makeBubbles(bubbles, canvas, ctx);
+
 				if (matches.textContent == 0) { // <-- CHANGE
 					endGame(true);
 				} else {
@@ -294,11 +288,7 @@
 						}
 					});
 				}
-				// cards.forEach(function(card){
-				// 	if (!card.classList.contains('matched')) {
-				// 		card.addEventListener('click', checkCards);
-				// 	}
-				// });
+
 			} else {
 				// TODO indicate no match
 				setTimeout (function() {
@@ -328,18 +318,21 @@
 	};
 
 	function updateScore() {
-		score.textContent = parseInt(score.textContent) + 10;
+		currScore += options.mPoints;
+		score.textContent = currScore;
 	};
 
 	function updateToMatch() {
-		match.textContent = parseInt(match.textContent) - 1;
+		remCards -= 1;
+		match.textContent = remCards;
 	};
 
-	function bubbles() {
-
-		function _createBubble() {
-
-		}
+	function makeBubbles(bubbles, canvas, context) {
+		createBubbles(function() {
+			setTimeout(function(){
+				animate(bubbles, canvas, context);
+			}, 100);
+		});
 	};
 
 	function endGame(cleared) {
