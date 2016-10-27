@@ -38,8 +38,6 @@ body {
 .menu-icon,
 .ctrl-icon {
 	position: absolute;
-/*	top: 20px;
-	left: 20px;*/
 	display: inline-block;
 	background: rgba(37, 25, 25, 1);
 	height: 50px;
@@ -47,6 +45,10 @@ body {
 	cursor: pointer;
 	transition: background 0.3s;
 	z-index: 100;
+}
+
+.ctrl-icon {
+	z-index: 9;
 }
 
 .menu-icon {
@@ -65,7 +67,6 @@ body {
 	height: 100%;
 	width: 100%;
 	background: transparent;
-/*	transform: rotate(180deg);*/
 	transition: all 0.3s;
 }
 
@@ -162,7 +163,7 @@ body {
 }
 
 .ctrl-toggle.open {
-	transform: rotate(-180deg);
+	transform: rotate(-90deg);
 }
 
 .ctrl-toggle.open span:nth-of-type(1),
@@ -186,93 +187,112 @@ body {
 	display: none;
 }
 
-aside {
+.instr-side {
 	position: absolute; /* relative */
-	left: -350px;
-	height: 100%;
-	width: 350px;
-	float: left;
-	transition: left 0.5s ease-out;
+	height: 100vh;
+	width: 100vw;
+	clip: rect(20px, 70px, 70px, 20px);
+	-webkit-transition: all 0.5s ease-out;
+	transition: all 0.5s ease-out;
 	overflow: hidden;
+	z-index: 10;
 }
 
-aside.show {
-	left: 0;
+.instr-side.show {
+	clip: rect(0vw, 100vw, 100vh, 0vh);
 }
 
-aside > div:first-of-type,
-.scoreboard > div:first-of-type {
+.instr-side > div.instr-wrapper,
+.ctrl-side > div.ctrl-wrapper {
 	position: absolute;
 	height: 100%;
 	width: 100%;
-	background: rgba(37, 37, 35, 0.9);
+	background: rgba(37, 37, 35, 1);
 	padding: 10px 20px;
 	z-index: 1;
 }
 
-aside > div:last-of-type,
-.scoreboard > div:last-of-type {
-	position: absolute;
-	bottom: -15px;
-	transform: rotate(-30deg);
+.ctrl-side > div.ctrl-wrapper {
+	padding: 10px 5px;
 }
 
-.scoreboard > div:last-of-type {
+.instr-side > div.img-wrapper,
+.ctrl-side > div.img-wrapper {
+	position: absolute;
+	bottom: -35px;
+	transform: rotate(35deg);
+	z-index: 2;
+}
+
+.ctrl-side > div.img-wrapper {
 	transform: rotate(86deg);
 	left: -52px;
 }
 
-.scoreboard > div:last-of-type img {
+.ctrl-side > div.img-wrapper img {
 	transform: scale(1.2);
 }
 
-aside > div:last-of-type img {
+.instr-side > div.img-wrapper img {
 	transform: scale(1.5);
 }
 
-aside header {
+.instr-side header {
 	text-align: center;
 }
 
-aside header p {
+.instr-side header p {
 	font-size: 1.1em;
 	line-height: 1.4em;
 }
 
-aside header h1 {
+.instr-side header h1 {
 	margin: 0;
 	color: ;
-	font-family: 'Karla', cursive;
-	font-size: 1.6em;
+	font-family: 'Karla', sans-serif;
+	font-size: 1.8em;
 }
 
-aside header h1 span {
+.instr-side header h1 span {
 	display: block;
 	margin-top: -10px;
 }
 
-aside header h1 img {
-	height: 50px;
+.instr-side header h1 span:first-of-type {
+	margin-top: -20px;
 }
 
-aside .instructions {
-	margin-top: 25px;
+.instr-side header h1 img {
+	height: 100px;
 }
 
-aside .instructions h2 {
-	margin: 0 0 35px;
+.instr-side .instructions {
+	margin-top: 10px;
+	text-align: center;
+}
+
+.instr-side .instructions > div {
+	margin: 0 auto;
+	width: 60%;
+}
+
+.instr-side .instructions h2 {
+	margin: 0 0 15px;
+	font-size: 1.6em;
+	font-weight: 400;
 	text-align: center
 }
 
-aside ul {
+.instr-side ul {
+	text-align: left;
 	list-style: none
 }
 
-aside ul li {
+.instr-side ul li {
 	margin-top: 15px;
 }
 
-aside ul li .li-number {
+.instr-side ul li .li-number {
 	display: inline-block;
 	height: 20px;
 	width: 20px;
@@ -284,47 +304,49 @@ aside ul li .li-number {
 	border-radius: 50%;
 }
 
-aside .instructions > p {
-	margin: 35px 0 0 0;
-	font-size: 1.2em;
-	font-weight: 700;
-	text-align: center;
+.instr-side ul li .li-item {
+	font-size: 1.3em;
 }
 
-aside .instructions > p span {
+.instr-side .instructions > div > p {
+	margin: 30px 0 0 0;
+	font-size: 1.5em;
+}
+
+.instr-side .instructions > p span {
 	color: ;
 }
 
-aside footer {
+.instr-side footer {
 	position: absolute;
 	bottom: 0;
 	width: calc(100% - 20px);
 	padding: 20px 0;
-	font-size: 1.2em;
+	font-size: 1.3em;
 	text-align: center;
 }
 
-aside footer a {
+.instr-side footer a {
 	text-decoration: none;
 	color: #f35;
 }
 
-.scoreboard {
+.ctrl-side {
     position: absolute;
-    top: 0;
-    right: -250px;
-    width: 250px;
+    bottom: 0;
+    right: 0;
+    width: 90px;
     height: 100vh;
-/*    -webkit-clip-path: inset(361px 0px 0px 175px);
-    clip-path: inset(361px 0px 0px 175px);*/
     overflow: hidden;
-    transition: all 0.3s ease-in;
+    clip: rect(calc(100vh - 70px), 70px, calc(100vh - 20px), 20px);
+    transition: all 0.5s ease-out;
+    z-index: 1;
 }
 
-.scoreboard.show {
-/*    -webkit-clip-path: inset(0% 0% 0% 0%);
-    clip-path: inset(0% 0% 0% 0%);*/
+.ctrl-side.show {
+	bottom: 0;
     right: 0;
+    clip: rect(0px, 90px, 100vh, 0px);
 }
 
 .display-container {
@@ -350,6 +372,7 @@ aside footer a {
 .controls-container .img-select {
 	height: 60px;
 	width: 60px;
+	margin: 0 auto;
 	overflow: hidden;
 	cursor: pointer;
 	transition-delay: 1s;
@@ -380,17 +403,14 @@ aside footer a {
 }
 
 .controls-container .img-wrap > div:nth-child(2) {
-/*	transition-delay: .6s;*/
 	transition-delay: 0s;
 }
 
 .controls-container .img-wrap > div:nth-child(3) {
-/*	transition-delay: .4s;*/
 	transition-delay: 0s;
 }
 
 .controls-container .img-wrap > div:nth-child(4) {
-/*	transition-delay: .2s;*/
 	transition-delay: 0s;
 }
 
@@ -412,12 +432,15 @@ aside footer a {
 
 .controls-container .img-wrap > div img {
 	height: 100%;
+	max-height: 100%;
+	max-width: 100%;
 }
 
 span.display {
 	display: inline-block;
 	height: 100%;
 	width: 60px;
+	margin: 0 auto;
 	padding-right: 7px;
 	background: rgb(248, 248, 255);
 	font-size: 1.5em;
@@ -451,9 +474,10 @@ span.display.counter.ending {
 	margin-top: 20px;
 }
 
-.btn {
+.controls-container .btn {
 	height: 35px;
 	width: 60px;
+	margin: 0 auto;
 	border: none;
 	color: #fff;
 	font-size: 0.9em;

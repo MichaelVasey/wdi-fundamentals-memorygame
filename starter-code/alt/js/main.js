@@ -1,4 +1,4 @@
-(function(){
+// (function(){
 	var images = [{
 		src: 'reindeer.png',
 		alt: 'Hello Kitty As A Reindeer',
@@ -62,7 +62,6 @@
 	}];
 
 	// cache some elements
-
 	var overlay = document.getElementById('overlay'),
 		countdown = overlay.querySelector('.countdown'),
 		scroller = document.getElementById('countdown-scroller'),
@@ -73,7 +72,8 @@
 		startBtn = document.getElementById('start-btn'),
 		resetBtn = document.getElementById('reset-btn'),
 		close = overlay.querySelector('#close-icon'),
-	// animationEnd event
+		docElem = window.document.documentElement,
+		// animationEnd event
 		support = { animations : Modernizr.cssanimations },
 		animEndEventNames = {
 		 'WebkitAnimation' : 'webkitAnimationEnd',// Saf 6, Android Browser
@@ -123,6 +123,13 @@
 		}
 		return a;
 	};
+
+	function getViewport() {
+		return {
+			x: docElem['clientWidth'] > window['innerWidth'] ? docElem['clientWidth'] : window['innerWidth'],
+			y: docElem['clientHeight'] > window['innerHeight'] ? docElem['clientHeight'] : window['innerHeight']
+		};
+	}
 	
 	// setup
 	function setup(newGame) {
@@ -139,6 +146,7 @@
 		matches.textContent = remCards = boardSize / 2;
 
 		counter.textContent = options.time;
+		counter.classList.remove('ending');
 
 		if (newGame) {
 			score.textContent = currScore = 0;
@@ -243,16 +251,45 @@
 		};
 	};
 
-	startBtn.addEventListener('click', startGame);
-	resetBtn.addEventListener('click', resetGame);
-	document.getElementById('menu-icon').addEventListener('click', function(){
-		this.querySelector('.menu-toggle').classList.toggle('open');
-		document.getElementById('side-bar').classList.toggle('show');
-	});
-	document.getElementById('ctrl-icon').addEventListener('click', function(){
-		this.querySelector('.ctrl-toggle').classList.toggle('open');
-		document.getElementById('scoreboard').classList.toggle('show');
-	});
+	function resizeHandler() {
+		cs = getComputedStyle(cntr);
+		w = parseInt(cs.getPropertyValue('width'), 10);
+		h = parseInt(cs.getPropertyValue('height'), 10);
+		canvas.width = w;
+		canvas.height = h + 100;
+		// _setAsides();
+
+		// function _setAsides() {
+		// 	var w = getViewport().x;
+		// 	var h = getViewport().y;
+		// 	var r = w - 70;
+		// 	var b = h - 70;
+		// 	var instr = document.getElementById('instr-side');
+		// 	instr.style.WebkitClipPath = 'inset(20px ' + r + 'px ' + b + 'px 20px)';
+		// 	instr.style.clipPath = 'inset(20px ' + r + 'px ' + b + 'px 20px)';
+		// }
+	}
+
+
+	function initEvents() {
+		startBtn.addEventListener('click', startGame);
+		resetBtn.addEventListener('click', resetGame);
+
+		document.getElementById('menu-icon').addEventListener('click', function(){
+			this.querySelector('.menu-toggle').classList.toggle('open');
+			document.getElementById('instr-side').classList.toggle('show');
+			// document.getElementById('instr-side').style.WebkitClipPath = '';
+			// document.getElementById('instr-side').style.clipPath = '';
+		});
+
+		document.getElementById('ctrl-icon').addEventListener('click', function(){
+			this.querySelector('.ctrl-toggle').classList.toggle('open');
+			document.getElementById('ctrl-side').classList.toggle('show');
+		});
+
+		window.addEventListener('click', resizeHandler);
+	}
+
 
 	//stopTimer
 	function stopTimer() {
@@ -276,10 +313,11 @@
 					selected.classList.add('matched');
 				});
 				_resetPaired();
-				update();
+				update(options.mPoints);
 				makeBubbles(bubbles, canvas, ctx);
 
-				if (matches.textContent == 0) { // <-- CHANGE
+				if (remCards == 0) {
+					update(options.cPoints);
 					endGame(true);
 				} else {
 					cards.forEach(function(card){
@@ -297,7 +335,9 @@
 					});
 					_resetPaired();
 					cards.forEach(function(card) {
-						card.addEventListener('click', checkCards);
+						if (!card.classList.contains('matched')) {
+							card.addEventListener('click', checkCards);							
+						}
 					});
 				}, 500);
 			}
@@ -312,13 +352,13 @@
 		};
 	};
 
-	function update() {
-		updateScore();
+	function update(points) {
+		updateScore(points);
 		updateToMatch();
 	};
 
-	function updateScore() {
-		currScore += options.mPoints;
+	function updateScore(points) {
+		currScore += points;
 		score.textContent = currScore;
 	};
 
@@ -326,6 +366,14 @@
 		remCards -= 1;
 		match.textContent = remCards;
 	};
+
+	function setImages() {
+		var imgBox = document.getElementById('selected-img');
+		var img = imgBox.querySelector('img');
+		var selected = document.querySelectorAll('.selected')[0];
+		var selectedImg = selected.querySelector('img');
+		img.setAttribute('src', selectedImg.src);
+	}
 
 	function makeBubbles(bubbles, canvas, context) {
 		createBubbles(function() {
@@ -353,6 +401,9 @@
 		resEl.classList.add('credits');
 		resEl.innerHTML = html;
 
+		countdown.classList.add('hide');
+		overlay.appendChild(resEl);
+
 		overlay.querySelector('#close-icon').addEventListener('click', function(){
 			overlay.classList.remove('show');
 			overlay.removeChild(resEl);
@@ -360,12 +411,11 @@
 			this.classList.add('hide');
 		});
 
-		countdown.classList.add('hide');
-		overlay.appendChild(resEl);
+		// countdown.classList.add('hide');
+		// overlay.appendChild(resEl);
 		close.classList.remove('hide');
 		overlay.classList.add('show');
 	};
-	// };
 
 	function resetGame() {
 		if (isPlaying) {
@@ -385,8 +435,11 @@
 		options = extend({}, options);
 		extend(options, opts);
 		setup(true);
+		setImages();
+		initEvents();
+		resizeHandler();
 	};
 
 	init();
 
-})();
+// })();

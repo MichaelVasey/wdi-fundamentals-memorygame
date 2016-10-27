@@ -7,16 +7,17 @@
 	})();
 
 	var cntr = document.getElementById('bubble-container');
-	var cs = getComputedStyle(cntr);
-	var w = parseInt(cs.getPropertyValue('width'), 10);
-	var h = parseInt(cs.getPropertyValue('height'), 10);
 	var canvas = document.getElementById('bubble-canvas');
 	var ctx = canvas.getContext('2d');
-	canvas.width = w;
-	canvas.height = h + 100;
 	var bubbles = [];
 
-	var button = document.getElementById('goBtn');
+	// function resizeHandler() {
+	// 	cs = getComputedStyle(cntr);
+	// 	w = parseInt(cs.getPropertyValue('width'), 10);
+	// 	h = parseInt(cs.getPropertyValue('height'), 10);
+	// 	canvas.width = w;
+	// 	canvas.height = h + 100;
+	// }
 
 	function drawBubble(bubble, context) {
 		context.beginPath();
