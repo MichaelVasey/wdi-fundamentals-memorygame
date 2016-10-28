@@ -558,6 +558,11 @@ main {
 	height: 100%;
 	width: 750px;
 	margin: 10px auto;
+	pointer-events: none;
+}
+
+.board.enable {
+	pointer-events: auto;
 }
 
 .card-wrapper {
@@ -614,23 +619,49 @@ main {
 }
 
 .overlay {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	height: 100%;
 	width: 100%;
-	background: rgba(0, 0, 0, 0.9);
-	opacity: 0;
-	display: none;
 	z-index: 9999;
-	transition: opacity 1s;
-	transition-delay: 1s;
+	pointer-events: none;
 }
 
-.overlay.show {
+.overlay-circle {
+	position: absolute;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+}
+
+.overlay-circle circle {
+	-webkit-transition: fill-opacity 0.3s, -webkit-transform 0s 0.3s;
+	transition: fill-opacity 0.3s, transform 0s 0.3s;
+	-webkit-transition-timing-function: ease-out;
+	transition-timing-function: ease-out;
+	-webkit-transform: scale3d(0, 0, 1);
+	transform: scale3d(0, 0, 1);
+	fill: #1f1d1d;
+	fill-opacity: 0;
+}
+
+.open .overlay {
+	pointer-events: auto;
+}
+
+.open .overlay-circle circle {
+	-webkit-transition: -webkit-transform 0.4s;
+	transition: transform 0.4s;
+	-webkit-transform: scale3d(1, 1, 1);
+	transform: scale3d(1, 1, 1);
+	fill-opacity: 1;
+}
+
+/*.overlay.show {
 	opacity: 1;
 	display: block;
-}
+}*/
 
 .overlay .close-icon {
 	position: absolute;
@@ -641,6 +672,7 @@ main {
 	cursor: pointer;
 	transform-origin: 50% 50%;
 	transition: transform 0.5s;
+	z-index: 100; /* <--- remove and add to new overlay content-container div? */
 }
 
 .overlay .close-icon:hover {
@@ -681,6 +713,7 @@ main {
 	line-height: 200px;
 	transform: translate(-50%, -50%);
 	overflow: hidden;
+	z-index: 100; /* <---- remove and add to new overlay content-container div */
 }
 
 .countdown.hide {
@@ -747,6 +780,11 @@ main {
 
 .credits > div:nth-child(3) {
 	font-size: 1.4em;
+}
+
+.credits.hide {
+	display: none;
+	opacity: 0;
 }
 
 span.yes, 

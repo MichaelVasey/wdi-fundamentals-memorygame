@@ -12,12 +12,13 @@
 	<script src="js/modernizr-latest.js"></script>
 </head>
 <body>
-	<div class="container clearfix">
+	<div id="container" class="container clearfix">
 		<main>
 			<div id="bubble-container" class="bubble-container">
 				<canvas id="bubble-canvas" class="bubble-canvas"></canvas>
 			</div>
-			<div id="board" class="board clearfix">
+			<div>
+				<div id="board" class="board clearfix"></div>
 			</div>
 		</main>
 		<aside id="instr-side" class="instr-side">
@@ -93,8 +94,9 @@
 			<span></span>
 		</span>
 	</span>
-	<div id="overlay" class="overlay" data-cntr="<div id='countdown' class='countdown'><div id='countdown-scroller' class='countdown-scroller'><span>3</span><span>2</span><span>1</span><span>Ready?</span><span>GO!</span></div></div>">
-		<div id="countdown" class="countdown">
+
+	<div id="overlay" class="overlay">
+		<div id="countdown" class="countdown hide">
 			<div id="countdown-scroller" class="countdown-scroller">
 				<span>3</span>
 				<span>2</span>
@@ -103,10 +105,30 @@
 				<span>GO!</span>
 			</div>
 		</div>
-
 		<span id="close-icon" class="close-icon hide"></span>
 	</div>
+
 	<script src="js/bubbles.js" type="text/javascript"></script>
 	<script src="js/main.js" type="text/javascript"></script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

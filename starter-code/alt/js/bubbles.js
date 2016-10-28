@@ -11,14 +11,6 @@
 	var ctx = canvas.getContext('2d');
 	var bubbles = [];
 
-	// function resizeHandler() {
-	// 	cs = getComputedStyle(cntr);
-	// 	w = parseInt(cs.getPropertyValue('width'), 10);
-	// 	h = parseInt(cs.getPropertyValue('height'), 10);
-	// 	canvas.width = w;
-	// 	canvas.height = h + 100;
-	// }
-
 	function drawBubble(bubble, context) {
 		context.beginPath();
 		context.fillStyle = bubble.grd;

@@ -62,7 +62,8 @@
 	}];
 
 	// cache some elements
-	var overlay = document.getElementById('overlay'),
+	var container = document.getElementsByTagName('body')[0],
+		overlay = document.getElementById('overlay'),
 		countdown = overlay.querySelector('.countdown'),
 		scroller = document.getElementById('countdown-scroller'),
 		counter = document.getElementById('counter'),
@@ -74,13 +75,22 @@
 		close = overlay.querySelector('#close-icon'),
 		docElem = window.document.documentElement,
 		// animationEnd event
-		support = { animations : Modernizr.cssanimations },
+		support = { animations : Modernizr.cssanimations,
+					transitions : Modernizr.csstransitions },
+
 		animEndEventNames = {
 		 'WebkitAnimation' : 'webkitAnimationEnd',// Saf 6, Android Browser
-		 'MozTAnimation'   : 'animationend',      // only for FF < 15
+		 'MozAnimation'   : 'animationend',      // only for FF < 15
 		 'animation'       : 'animationend'       // IE10, Opera, Chrome, FF 15+, Saf 7+
 		},
 		animEndEventName = animEndEventNames[ Modernizr.prefixed('animation') ],
+
+		transEndEventNames = {
+			'WebkitTransition' : 'webkitTransitionEnd',
+			'MozTransition' : 'transitionend',
+			'transition' : 'transitionend'
+		},
+		transEndEventName = transEndEventNames[ Modernizr.prefixed('transition') ],
 
 		// onAnimationEnd www.tympanus.net/codrops
 		onAnimationEnd = function(el, callback) {
@@ -93,6 +103,22 @@
 			};
 			if(support.animations) {
 				el.addEventListener(animEndEventName, onEndCallbackFn);
+			}
+			else {
+				onEndCallbackFn();
+			}
+		},
+
+		onTransitionEnd = function(el, callback) {
+			var onEndCallbackFn = function(ev) {
+				if (support.transitions) {
+					if(ev.target != this) return;
+					this.removeEventListener(transEndEventName, onEndCallbackFn);
+				}
+				if (callback && typeof callback === 'function') {callback.call(this);}
+			};
+			if(support.transitions) {
+				el.addEventListener(transEndEventName, onEndCallbackFn);
 			}
 			else {
 				onEndCallbackFn();
@@ -174,7 +200,6 @@
 
 		};
 		
-
 		function _createPair(img) {
 			for (var i = 0; i < 2; i++) {
 				cardEl = document.createElement('div');
@@ -221,17 +246,23 @@
 		}
 
 		// 1: show overlay with countdown
-		overlay.classList.add('show');
-		// 2: start countdown!!
-		countdown.classList.add('start');
-		// 3: hide overlay on animation end
-		onAnimationEnd(scroller, function() {
-			overlay.classList.remove('show');
-
-			isPlaying = true;
-			boardSet = false;
-			startTimer(function(){
-				endGame(false);
+		show_overlay(function() {
+			var SVGCircleEl = overlay.querySelector('svg > g > circle');
+			onTransitionEnd(SVGCircleEl, function(){
+		// 2. start countdown
+				countdown.classList.remove('hide');
+				countdown.classList.add('start');
+			});
+		// 3. hide overlay on animation end
+			onAnimationEnd(scroller, function(){
+				board.classList.add('enable');
+				countdown.classList.add('hide');
+				container.classList.remove('open');
+				isPlaying = true;
+				boardSet = false;
+				startTimer(function() {
+					endGame(false);
+				});
 			});
 		});
 
@@ -252,11 +283,14 @@
 	};
 
 	function resizeHandler() {
-		cs = getComputedStyle(cntr);
-		w = parseInt(cs.getPropertyValue('width'), 10);
-		h = parseInt(cs.getPropertyValue('height'), 10);
+		var cs = getComputedStyle(cntr),
+			w = parseInt(cs.getPropertyValue('width'), 10),
+			h = parseInt(cs.getPropertyValue('height'), 10),
+			SVGCircleEl = overlay.querySelector('svg > g > circle');
 		canvas.width = w;
 		canvas.height = h + 100;
+
+		SVGCircleEl.setAttributeNS(null, 'r', Math.sqrt(Math.pow(overlay.offsetWidth, 2) + Math.pow(overlay.offsetHeight, 2)));
 		// _setAsides();
 
 		// function _setAsides() {
@@ -270,6 +304,48 @@
 		// }
 	}
 
+	function createCircleOverlay(el) {
+		var dummy = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		dummy.setAttributeNS(null, 'version', '1.1');
+		dummy.setAttributeNS(null, 'width', '100%');
+		dummy.setAttributeNS(null, 'height', '100%');
+		dummy.setAttributeNS(null, 'class', 'overlay-circle');
+		var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+		var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+		circle.setAttributeNS(null, 'cx', 0);
+		circle.setAttributeNS(null, 'cy', 0);
+		circle.setAttributeNS(null, 'r', Math.sqrt(Math.pow(el.offsetWidth, 2) + Math.pow(el.offsetHeight, 2)));
+		dummy.appendChild(g);
+		g.appendChild(circle);
+		el.appendChild(dummy);
+	}
+
+	function show_overlay(callback) {
+		var SVGCircleGroupEl = document.getElementsByTagName('g')[0],
+			win = {width: document.documentElement.clientWidth, height: window.innerHeight};
+
+		switch (Math.floor(Math.random() * 4) + 1) {
+			case 1:
+				SVGCircleGroupEl.setAttributeNS(null, 'transform', 'translate(0, 0)');
+				break;
+			case 2:
+				SVGCircleGroupEl.setAttributeNS(null, 'transform', 'translate(' + win.width + ', 0)');
+				break;
+			case 3:
+				SVGCircleGroupEl.setAttributeNS(null, 'transform', 'translate(' + win.width + ', ' + win.height + ')');
+				break;
+			case 4:
+				SVGCircleGroupEl.setAttributeNS(null, 'transform', 'translate(0, ' +  win.height + ')');
+				break;
+		}
+
+		container.classList.add('open');
+
+		if (callback && typeof callback == 'function') {
+			callback();
+		}
+	}
+
 
 	function initEvents() {
 		startBtn.addEventListener('click', startGame);
@@ -278,8 +354,6 @@
 		document.getElementById('menu-icon').addEventListener('click', function(){
 			this.querySelector('.menu-toggle').classList.toggle('open');
 			document.getElementById('instr-side').classList.toggle('show');
-			// document.getElementById('instr-side').style.WebkitClipPath = '';
-			// document.getElementById('instr-side').style.clipPath = '';
 		});
 
 		document.getElementById('ctrl-icon').addEventListener('click', function(){
@@ -287,7 +361,7 @@
 			document.getElementById('ctrl-side').classList.toggle('show');
 		});
 
-		window.addEventListener('click', resizeHandler);
+		window.addEventListener('resize', resizeHandler);
 	}
 
 
@@ -363,6 +437,7 @@
 	};
 
 	function updateToMatch() {
+		if (remCards <= 0) return;
 		remCards -= 1;
 		match.textContent = remCards;
 	};
@@ -385,6 +460,8 @@
 
 	function endGame(cleared) {
 		isPlaying = false;
+		board.classList.remove('enable');
+		
 		var resEl = document.createElement('div'),
 			html;
 
@@ -399,22 +476,34 @@
 
 		html += '<div>Your current score is <span>' + score.textContent + '</span></div><div>Play again? <span class="yes">YES</span><span class="no">NO</span></div>';
 		resEl.classList.add('credits');
+		resEl.classList.add('hide');
 		resEl.innerHTML = html;
 
 		countdown.classList.add('hide');
 		overlay.appendChild(resEl);
 
 		overlay.querySelector('#close-icon').addEventListener('click', function(){
-			overlay.classList.remove('show');
+			// overlay.classList.remove('show');
+			container.classList.remove('open');
 			overlay.removeChild(resEl);
-			countdown.classList.remove('hide');
+			// countdown.classList.remove('hide');
 			this.classList.add('hide');
 		});
 
 		// countdown.classList.add('hide');
 		// overlay.appendChild(resEl);
-		close.classList.remove('hide');
-		overlay.classList.add('show');
+
+		// close.classList.remove('hide');
+		// overlay.classList.add('show');
+
+		show_overlay(function(){
+			var SVGCircleEl = overlay.querySelector('svg > g > circle'),
+			    credits = overlay.querySelector('.credits');
+			onTransitionEnd(SVGCircleEl, function() {
+				close.classList.remove('hide'); // add/show new overlay content container instead (fade in?)
+				credits.classList.remove('hide');
+			});
+		});
 	};
 
 	function resetGame() {
@@ -435,6 +524,7 @@
 		options = extend({}, options);
 		extend(options, opts);
 		setup(true);
+		createCircleOverlay(overlay);
 		setImages();
 		initEvents();
 		resizeHandler();
